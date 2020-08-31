@@ -13,8 +13,35 @@ spec:
         app: hello-world
     spec:
       containers:
-      - image: okteto/hello-world:python
+      - image: localhost:32000/hello
         name: hello-world
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-celery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world-celery
+  template:
+    metadata:
+      labels:
+        app: hello-world-celery
+    spec:
+      containers:
+      - image: localhost:32000/hello
+        name: hello-world
+        command:
+          - celery
+        args:
+          - "-A"
+          - "app:celery_app"
+          - "worker"
+          - "--loglevel=INFO"
 
 ---
 
@@ -31,3 +58,39 @@ spec:
     port: 8080
   selector:
     app: hello-world
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world-rabbitmq
+  template:
+    metadata:
+      labels:
+        app: hello-world-rabbitmq
+    spec:
+      containers:
+      - image: rabbitmq:3.8.7
+        name: rabbitmq
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world-rabbitmq
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+spec:
+  type: ClusterIP
+  ports:
+  - name: "hello-world-rabbitmq"
+    port: 5672
+  selector:
+    app: hello-world-rabbitmq

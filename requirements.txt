@@ -5,3 +5,7 @@ Jinja2==2.10.3
 MarkupSafe==1.1.1
 pydevd-pycharm==192.7142.79
 Werkzeug==0.16.0
+celery==4.4.7
+watchdog==0.10.3
+argh==0.26.2
+PyYAML==5.3.1

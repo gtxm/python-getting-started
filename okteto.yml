@@ -1,5 +1,5 @@
 name: hello-world
-image: okteto/hello-world:python-dev
+image: localhost:32000/hello
 command: [ "python", "app.py"]
 environment:
   - FLASK_ENV=development
@@ -8,4 +8,11 @@ forward:
 reverse:
   - 3500:3500
 persistentVolume:
-  enabled: false
+  enabled: true
+sync:
+  - .:/usr/src/app
+services:
+  - name: hello-world-celery
+    command: ["watchmedo", "auto-restart", "--directory=/usr/src/app", "--pattern=*.py", "--recursive", "--", "celery", "-A", "app:celery_app", "worker", "--loglevel=INFO"]
+    sync:
+      - .:/usr/src/app
